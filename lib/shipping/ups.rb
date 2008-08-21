@@ -10,6 +10,7 @@ module Shipping
 
 		# For current implementation (XML) docs, see http://www.ups.com/gec/techdocs/pdf/dtk_RateXML_V1.zip
 		def price
+		  
 			@required = [:zip, :country, :sender_zip, :weight]
 			@required += [:ups_license_number, :ups_user, :ups_password]
 
@@ -19,7 +20,6 @@ module Shipping
 			@service_type ||= 'ground' # default to UPS ground
 			@ups_url ||= "https://wwwcie.ups.com/ups.app/xml"
 			@ups_tool = '/Rate'
-
 			state = STATES.has_value?(@state.downcase) ? STATES.index(@state.downcase).upcase : @state.upcase unless @state.blank?
 			sender_state = STATES.has_value?(@sender_state.downcase) ? STATES.index(@sender_state.downcase).upcase : @sender_state.upcase unless @sender_state.blank?
 
@@ -54,9 +54,11 @@ module Shipping
 					b.ShipTo { |b|
 						b.Address { |b|
 							b.PostalCode @zip
+							b.AddressLine1 @address unless @address.blank?
 							b.CountryCode @country unless @country.blank?
 							b.City @city unless @city.blank?
 							b.StateProvinceCode state unless state.blank?
+							b.ResidentialAddressIndicator 1
 						}
 					}
 					b.Service { |b| # The service code
@@ -91,10 +93,10 @@ module Shipping
 					}
 				}
 			}
-
 			get_response @ups_url + @ups_tool
-
-			return REXML::XPath.first(@response, "//RatingServiceSelectionResponse/RatedShipment/TransportationCharges/MonetaryValue").text.to_f
+      
+      r = REXML::XPath.first(@response, "//RatingServiceSelectionResponse/RatedShipment/TransportationCharges/MonetaryValue").text.to_f
+			return r
 		rescue
 			raise ShippingError, get_error
 		end

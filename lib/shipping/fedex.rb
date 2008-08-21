@@ -6,7 +6,7 @@
 # See http://www.fedex.com/us/solutions/wis/pdf/xml_transguide.pdf?link=4 for the full XML-based API
 
 module Shipping
-	class FedEx < Base
+	class Fedex < Base
 		# Gets the list price the regular consumer would have to pay.  Discount price is what the 
 		# person with this particular account number will pay
 		def price

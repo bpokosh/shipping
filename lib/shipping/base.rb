@@ -39,6 +39,8 @@ module Shipping
 		    fedex
 	    when "ups"
 	      ups
+	    when "usps"
+        usps
       when nil
       else
         raise ShippingError, "unknown service"
@@ -48,14 +50,18 @@ module Shipping
 
 		# Initializes an instance of Shipping::FedEx with the same instance variables as the base object
 		def fedex
-			Shipping::FedEx.new prepare_vars
+			Shipping::Fedex.new prepare_vars
 		end
 
 		# Initializes an instance of Shipping::UPS with the same instance variables as the base object
 		def ups
 			Shipping::UPS.new prepare_vars
 		end
-
+		
+		def usps
+		  Shipping::USPS.new prepare_vars
+    end
+    
 		def self.state_from_zip(zip)
 			zip = zip.to_i
 			{
@@ -156,6 +162,23 @@ module Shipping
 					http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 				end
 				@response_plain = http.post(uri.path, @data).body
+				@response       = @response_plain.include?('<?xml') ? REXML::Document.new(@response_plain) : @response_plain
+
+				@response.instance_variable_set "@response_plain", @response_plain
+				def @response.plain; @response_plain; end
+			end
+			
+			def get_get_response(url)
+				check_required
+				uri            = URI.parse url
+				http           = Net::HTTP.new uri.host, uri.port
+				if uri.port == 443
+					http.use_ssl	= true
+					http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+				end
+				
+				@req = uri.path + '?API=RateV3&XML=' + CGI.escape(@data)
+				@response_plain = http.get(@req).body
 				@response       = @response_plain.include?('<?xml') ? REXML::Document.new(@response_plain) : @response_plain
 
 				@response.instance_variable_set "@response_plain", @response_plain
