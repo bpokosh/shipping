@@ -1,6 +1,7 @@
 # Author::    Lucas Carlson  (mailto:lucas@rufy.com)
 # Copyright:: Copyright (c) 2005 Lucas Carlson
 # License::   LGPL
+require 'cgi'
 
 module Shipping
 	VERSION = "1.5.1"
