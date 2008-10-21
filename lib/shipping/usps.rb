@@ -2,6 +2,11 @@
 # Copyright:: Copyright (c) 2008 Sean Harper
 # License::   LGPL
 
+# Provides shipping rates for USPS mail.
+#
+# Note: This uses the older V2 rate API, since the V3 rate API isn't setup on the
+# testing server
+# 
 module Shipping
   
 
