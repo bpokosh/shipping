@@ -18,7 +18,7 @@ class BaseTest < Test::Unit::TestCase
 
 	def test_fedex
 		fedex = @ship.fedex
-		assert_instance_of Shipping::FedEx, fedex
+		assert_instance_of Shipping::Fedex, fedex
 		assert_equal fedex.zip, @ship.zip
 	end
 end
