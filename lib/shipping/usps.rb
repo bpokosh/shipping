@@ -21,21 +21,23 @@ module Shipping
       
       b = Builder::XmlMarkup.new(:target => @data)
       b.instruct!
-      b.RateV3Request('USERID'=>@usps_account, 'PASSWORD' => @usps_password){ |b|
+      b.RateV2Request('USERID'=>@usps_account){ |b| # , 'PASSWORD' => @usps_password){ |b|
         b.Package('ID'=>'1ST'){ |b|
           b.Service ServiceTypes[@service_type] || ServiceTypes['priority']
           b.ZipOrigination @sender_zip
           b.ZipDestination @zip
           b.Pounds shipping_pounds.to_i
           b.Ounces shipping_ounces.to_i
+          b.Container @container || "Flat Rate Box"
           b.Size "Regular"
+          b.Machinable @machinable unless @machinable.nil?
         }
       }
 
       get_get_response get_url
-      if r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
+      if r = REXML::XPath.first(@response, "//RateV2Response/Package/Postage/Rate").text.to_f
         return r
-      elsif r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
+      elsif r = REXML::XPath.first(@response, "//RateV2Response/Package/Postage/Rate").text.to_f
         raise ShippingError, get_error
       end
     rescue
@@ -45,6 +47,7 @@ module Shipping
     private
     
     def get_error
+      debugger
       xml = REXML::Document.new(@response)
       code = REXML::XPath.first(xml, "//Error/Number").text
       message = REXML::XPath.first(xml, "//Error/Description").text
@@ -57,7 +60,8 @@ module Shipping
     
     ServiceTypes = {
       "priority" => "PRIORITY",
-      "express" => "EXPRESS"
+      "express" => "EXPRESS",
+      "all" => "ALL"
     }
     
   end

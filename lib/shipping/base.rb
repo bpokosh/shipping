@@ -179,7 +179,7 @@ module Shipping
 					http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 				end
 				
-				@req = uri.path + '?API=RateV3&XML=' + CGI.escape(@data)
+				@req = uri.path + '?API=RateV2&XML=' + CGI.escape(@data)
 				@response_plain = http.get(@req).body
 				@response       = @response_plain.include?('<?xml') ? REXML::Document.new(@response_plain) : @response_plain
 
