@@ -32,7 +32,7 @@ module Shipping
         }
       }
 
-      get_get_response 'http://production.shippingapis.com/shippingapi.dll'
+      get_get_response get_url
       if r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
         return r
       elsif r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
@@ -49,6 +49,10 @@ module Shipping
       code = REXML::XPath.first(xml, "//Error/Number").text
       message = REXML::XPath.first(xml, "//Error/Description").text
       return "Error #{code}: #{message} \n Sent: #{@req}"
+    end
+    
+    def get_url
+      @usps_url || 'http://production.shippingapis.com/shippingapi.dll'
     end
     
     ServiceTypes = {

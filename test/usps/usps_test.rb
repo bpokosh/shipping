@@ -8,6 +8,9 @@ class USPSTest < Test::Unit::TestCase
                                 :sender_state => "New York",
                                 :weight => 2
                                 )
+
+    # use testing environment for tests
+    @ship.usps_url = 'http://testing.shippingapis.com/ShippingAPITest.dll'
     
   end
   
