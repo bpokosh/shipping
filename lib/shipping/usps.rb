@@ -12,7 +12,7 @@ module Shipping
     
     def price
       @required = [:zip, :country, :sender_zip, :weight]
-      @required += [:usps_account]
+      @required += [:usps_account, :usps_password]
       @country ||= 'US'
       @data = String.new            
       
@@ -21,7 +21,7 @@ module Shipping
       
       b = Builder::XmlMarkup.new(:target => @data)
       b.instruct!
-      b.RateV3Request('USERID'=>@usps_account){ |b|
+      b.RateV3Request('USERID'=>@usps_account, 'PASSWORD' => @usps_password){ |b|
         b.Package('ID'=>'1ST'){ |b|
           b.Service ServiceTypes[@service_type] || ServiceTypes['priority']
           b.ZipOrigination @sender_zip
@@ -31,9 +31,13 @@ module Shipping
           b.Size "Regular"
         }
       }
+
       get_get_response 'http://production.shippingapis.com/shippingapi.dll'
-      r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
-      return r
+      if r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
+        return r
+      elsif r = REXML::XPath.first(@response, "//RateV3Response/Package/Postage/Rate").text.to_f
+        raise ShippingError, get_error
+      end
     rescue
       raise ShippingError, get_error
     end
@@ -41,9 +45,9 @@ module Shipping
     private
     
     def get_error
-      code = REXML::XPath.first(@response, "//Error/Number").text
-      message = REXML::XPath.first(@response, "//Error/Description").text
-      debugger
+      xml = REXML::Document.new(@response)
+      code = REXML::XPath.first(xml, "//Error/Number").text
+      message = REXML::XPath.first(xml, "//Error/Description").text
       return "Error #{code}: #{message} \n Sent: #{@req}"
     end
     

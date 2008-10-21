@@ -10,4 +10,8 @@ class USPSTest < Test::Unit::TestCase
                                 )
     
   end
+  
+  def test_price
+    assert_in_delta 5.80, @ship.price, 1
+  end
 end
