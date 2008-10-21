@@ -5,7 +5,7 @@
 # Provides shipping rates for USPS mail.
 #
 # Note: This uses the older V2 rate API, since the V3 rate API isn't setup on the
-# testing server
+# testing server.  V2 is stable and will be around for some time.
 # 
 module Shipping
   
@@ -34,15 +34,15 @@ module Shipping
           b.Pounds shipping_pounds.to_i
           b.Ounces shipping_ounces.to_i
           b.Container @container || "Flat Rate Box"
-          b.Size "Regular"
-          b.Machinable @machinable unless @machinable.nil?
+          b.Size @usps_size || "Regular"
+          b.Machinable @usps_machinable unless @usps_machinable.nil?
         }
       }
 
       get_get_response get_url
-      if r = REXML::XPath.first(@response, "//RateV2Response/Package/Postage/Rate").text.to_f
-        return r
-      elsif r = REXML::XPath.first(@response, "//RateV2Response/Package/Postage/Rate").text.to_f
+      if r = REXML::XPath.first(@response, "//RateV2Response/Package/Postage/Rate")
+        return r.text.to_f
+      else
         raise ShippingError, get_error
       end
     rescue
@@ -50,12 +50,12 @@ module Shipping
     end
     
     private
-    
+
+    # Returns a formatter error message string.
+    #
     def get_error
-      debugger
-      xml = REXML::Document.new(@response)
-      code = REXML::XPath.first(xml, "//Error/Number").text
-      message = REXML::XPath.first(xml, "//Error/Description").text
+      code = REXML::XPath.first(@response, "//Error/Number").text
+      message = REXML::XPath.first(@response, "//Error/Description").text
       return "Error #{code}: #{message} \n Sent: #{@req}"
     end
     

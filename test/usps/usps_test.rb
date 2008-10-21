@@ -20,8 +20,21 @@ class USPSTest < Test::Unit::TestCase
   end
 
   def test_price_canned_response_one
-    # Canned price response
     assert_in_delta 7.70, @ship.price, 1
   end
   
+  def test_price_canned_response_two
+    @ship.service_type = 'all'
+    @ship.usps_size = 'large'
+    @ship.usps_machinable = 'true'
+    assert_in_delta 39.20, @ship.price, 1    
+  end
+  
+  def test_error
+    # Change one field from the canned request
+    @ship.weight = 20.2
+    assert_raises Shipping::ShippingError do
+      @ship.price
+    end
+  end
 end
