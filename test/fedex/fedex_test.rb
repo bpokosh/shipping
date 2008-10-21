@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 class FedExTest < Test::Unit::TestCase
 	def setup
-		@ship = Shipping::FedEx.new(
+		@ship = Shipping::Fedex.new(
 			:zip => 97202,
 			:state => "OR",
 			:sender_zip => 10001,
@@ -23,7 +23,7 @@ class FedExTest < Test::Unit::TestCase
 	end
 	
 	def test_fails
-		ship = Shipping::FedEx.new :zip => 97202, :weight => 2
+		ship = Shipping::Fedex.new :zip => 97202, :weight => 2
 		assert_raise(Shipping::ShippingError) { ship.price }
 	end
 	
