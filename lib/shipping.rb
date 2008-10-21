@@ -45,3 +45,6 @@ require 'extensions'
 require 'shipping/base'
 require 'shipping/fedex'
 require 'shipping/ups'
+require 'shipping/usps'
+# TODO: Remove in production
+require 'ruby-debug'
