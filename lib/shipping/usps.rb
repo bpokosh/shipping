@@ -26,7 +26,7 @@ module Shipping
       
       b = Builder::XmlMarkup.new(:target => @data)
       b.instruct!
-      b.RateV2Request('USERID'=>@usps_account){ |b| # , 'PASSWORD' => @usps_password){ |b|
+      b.RateV2Request('USERID'=>@usps_account){ |b|
         b.Package('ID'=>'1ST'){ |b|
           b.Service ServiceTypes[@service_type] || ServiceTypes['priority']
           b.ZipOrigination @sender_zip
